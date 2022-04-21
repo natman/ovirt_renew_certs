@@ -79,6 +79,7 @@ Good Practice
 -------------
 
 You should always encrypt your password with "ansible-vault". Then simply add "--ask-vault-pass" or "vault-id=password" to the CLI.
+
 License
 -------
 
