@@ -1,0 +1,19 @@
+---
+- block:
+    - include_tasks: ovirt_auth.yaml
+    - ovirt.ovirt.ovirt_host_info:
+        auth: "{{ovirt_auth}}"
+        pattern: name="{{inventory_hostname.split('.')[0]}}*"
+      register: result
+      until: result.ovirt_hosts[0].status == 'up'
+      retries: 10
+      delay: 5
+    - ansible.builtin.debug:
+        msg: "{{ result.ovirt_hosts[0].status }}"
+  tags: ovirt
+  delegate_to: localhost
+
+- name: "Verify the new certificate date validity"
+  shell: openssl x509 -noout -enddate -in /etc/pki/vdsm/certs/{{vdsmcert}}
+  register: result
+- debug: var=result.stdout

@@ -1,0 +1,13 @@
+---
+- block:
+  - name: Include oVirt password
+  # Obtain SSO token with using username/password credentials
+    ovirt_auth:
+      url: https://{{server}}.{{domain}}/ovirt-engine/api
+      username: admin@internal
+      password: "{{ ovirt_password }}"
+      #ca_file: /tmp/ca.pem
+      insecure: true
+    ignore_errors: yes
+    no_log: True
+  tags: always

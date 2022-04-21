@@ -1,0 +1,114 @@
+---
+# 220421 NBT
+# ansible-playbook role_ovirt_renew_certs.yml --vault-id=/tmp/passwd 
+                                              # --limit tavurvur-2
+                                              # -e server=arum
+                                              # -e csr_validity=365
+                                              # -e vdsmkey=vdsmkey.pem
+                                              # -e vdsmcert=vdsmcert.pem
+                                              # -e vdsmkey_path=/tmp
+                                              # -e domain=v100.abes.fr
+
+    - name: pre_tasks
+      include_tasks: pre_tasks.yml
+
+    - name: "Verify that {{server}} can connect to {{inventory_hostname}}"
+      shell: "timeout 5s ssh -o StrictHostKeyChecking=no root@{{inventory_hostname}}.{{domain}} exit"
+      register: result
+      ignore_errors: true
+      delegate_to: "{{server}}.{{domain}}"
+      tags: ssh
+    
+    - fail:
+        msg: "Add an ssh key from {{server}} to {{inventory_hostname}} authorized_keys file"
+      when: result.failed
+
+    - name: "Copy the key to the manager"
+      synchronize:
+        mode: pull
+        src: "/etc/pki/vdsm/keys/{{vdsmkey}}"
+        dest: "/tmp/{{vdsmkey}}_{{inventory_hostname}}"
+      delegate_to: "{{server}}.{{domain}}"
+
+    - name: "Create a CSR for the host using the key"
+      shell: openssl req -new 
+                         -days "{{csr_validity}}" 
+                         -key "{{vdsmkey_path}}"/"{{vdsmkey}}_{{inventory_hostname}}" 
+                         -out "{{vdsmkey_path}}"/test_"{{inventory_hostname}}"_vdsm.csr 
+                         -passin "pass:mypass" 
+                         -passout "pass:mypass" 
+                         -batch 
+                         -subj "/"
+      delegate_to: "{{server}}.{{domain}}"
+
+    - name: "Set subject"
+      set_fact:
+        subject: "/O=v100.abes.fr/CN={{inventory_hostname.split('.')[0]}}.v100.abes.fr"
+      tags: subject
+    - debug: var=subject
+      tags: subject
+
+    - name: "Sign the CSR using the engine CA"
+      shell: openssl ca -batch 
+                        -policy policy_match 
+                        -config openssl.conf 
+                        -cert ca.pem 
+                        -keyfile  private/ca.pem 
+                        -days +"{{pem_validity}}" 
+                        -in  "{{vdsmkey_path}}"/test_"{{item}}"_vdsm.csr 
+                        -out "{{vdsmkey_path}}"/test_"{{item}}"_vdsm.cer 
+                        -startdate "$(date --utc --date "now -1 days" +"%y%m%d%H%M%SZ")" 
+                        -subj "{{subject}}" 
+                        -utf8
+      args:
+        chdir: /etc/pki/ovirt-engine/
+      loop: "{{ansible_play_hosts_all}}"
+      loop_control:
+        label: "{{item}}"
+      run_once: true
+      delegate_to: "{{server}}.{{domain}}"
+
+    - name: "Copy back the signed certificate to /etc/pki/vdsm/certs/{{vdsmcert}}"
+      synchronize:
+        src: "{{vdsmkey_path}}/test_{{inventory_hostname}}_vdsm.cer"
+        dest: /etc/pki/vdsm/certs/{{vdsmcert}}
+      delegate_to: "{{server}}.{{domain}}"
+      tags: synchronize
+
+    - name: "Copy the certificate to libvirt"
+      copy:
+        remote_src: yes
+        src: "/etc/pki/vdsm/certs/{{vdsmcert}}"
+        dest: "{{item}}"
+      loop:
+        - "/etc/pki/vdsm/libvirt-spice/server-cert.pem"
+        - "/etc/pki/libvirt/clientcert.pem"
+      loop_control:
+        label: "{{item}}"
+      tags: copy
+
+    - name: "Restart libvirtd and vdsmd"
+      systemd:
+        state: restarted
+        name: "{{item}}"
+      loop: 
+        - libvirtd
+        - vdsmd
+
+    - name: "Clean temporay files"
+      file:
+        state: absent
+        path: "{{item}}"
+      loop: 
+        - "{{vdsmkey_path}}/{{vdsmkey}}_{{inventory_hostname}}"
+        - "{{vdsmkey_path}}/test_{{inventory_hostname}}_vdsm.cer"
+        - "{{vdsmkey_path}}/test_{{inventory_hostname}}_vdsm.csr"
+      delegate_to: "{{server}}.{{domain}}"
+      tags: clean
+
+    - name: post_tasks 
+      include_tasks: post_tasks.yml
+
+
+
+
