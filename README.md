@@ -72,17 +72,17 @@ Example Playbook
             
 * You can change vars value on the CLI like this:
 
-    ansible-playbook role_ovirt_renew_certs.yml --limit ovirt_hosts (-i inventory)
-                                                  -e ovirt_password='my_password'
-                                                  (-e server='my_engine')
-                                                  -e engines="['host1', 'host2']"
-                                                  -e csr_validity=365
-                                                  -e vdsmkey=vdsmkey.pem
-                                                  -e vdsmcert=vdsmcert.pem
-                                                  -e vdsmkey_path=/tmp
-                                                  -e domain=my_domain.com
+            ansible-playbook role_ovirt_renew_certs.yml --limit ovirt_hosts (-i inventory)
+                                                          -e ovirt_password='my_password'
+                                                          (-e server='my_engine')
+                                                          -e engines="['host1', 'host2']"
+                                                          -e csr_validity=365
+                                                          -e vdsmkey=vdsmkey.pem
+                                                          -e vdsmcert=vdsmcert.pem
+                                                          -e vdsmkey_path=/tmp
+                                                          -e domain=my_domain.com
                                                   
-    ansible-playbook role_ovirt_renew_certs.yml --limit ovirt_hosts -e @vars.yml
+* ansible-playbook role_ovirt_renew_certs.yml --limit ovirt_hosts -e @vars.yml
                                                   
 * Or by modifying the `vars/main.yml` file
 
