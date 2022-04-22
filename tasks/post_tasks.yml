@@ -1,7 +1,7 @@
 ---
 - block:
     - include_tasks: ovirt_auth.yaml
-    - ovirt.ovirt.ovirt_host_info:
+    - ovirt_host_info:
         auth: "{{ovirt_auth}}"
         pattern: name="{{inventory_hostname.split('.')[0]}}*"
       register: result

@@ -5,14 +5,16 @@
     - name: ovirt_password
       prompt: Enter oVirt admin password.
       unsafe: yes
-      encrypt: sha256_crypt
+      #encrypt: sha256_crypt
 
     - name: domain
-      prompt: Enter the oVirt domain (domain.com)
+      prompt: Enter the oVirt domain
+      default: domain.com
       private: no
 
     - name: engines
-      prompt: Enter a list of oVirt engines ("['host1', 'host2']")
+      prompt: Enter a list of oVirt engines
+      default: host1,host2
       private: no
 
     - name: pem_validity

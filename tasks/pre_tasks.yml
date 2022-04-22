@@ -27,13 +27,13 @@
     - name: Get hosts from all engines
       ovirt_host_info:
         auth:
-          url: "https://{{item}}.v100.abes.fr/ovirt-engine/api"
+          url: "https://{{item}}.{{domain}}/ovirt-engine/api"
           username: admin@internal
           password: "{{ ovirt_password if item != 'infra' else ovirt_password_infra }}"
           #ca_file: /tmp/ca.pem
           insecure: true
         pattern: "name={{inventory_hostname}}*"
-      loop: "{{engines}}"
+      loop: "{{engines.split(',')}}"
       loop_control:
         label: "{{item}}"
       register: result

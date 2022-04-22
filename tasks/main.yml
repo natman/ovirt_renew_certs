@@ -43,7 +43,7 @@
 
     - name: "Set subject"
       set_fact:
-        subject: "/O=v100.abes.fr/CN={{inventory_hostname.split('.')[0]}}.v100.abes.fr"
+        subject: "/O={{domain}}/CN={{inventory_hostname.split('.')[0]}}.{{domain}}"
       tags: subject
     - debug: var=subject
       tags: subject
