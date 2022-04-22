@@ -9,6 +9,7 @@ Requirements
 ------------
 
 * Ansible must be installed on the controller, and all targeted hosts (engine and hosts) must be reachable with a simple "ansible -m ping".
+* By default, host checking is disabled in ansible.cfg. You can change this behaviour with `export ANSIBLE_HOST_KEY_CHECKING=False` or with `host_key_checking = False` in `ansible.cfg`.
 * Engine (server) must login into host without password.
 
         #engine ssh-copy-id root@host
