@@ -1,8 +1,8 @@
 ovirt_renew_certs
 =========
 
-Ovirt needs (at least) self generated certificates to make the engine and the hosts safely communicate. They are now valid 365 days by default. If a those certificates are not valid anymore, the hosts can't communicate anymore with the engine and the vms go into an unknown state. 
-The official way to renew certificates is to put the concerned host into maintenance and check "enroll certificates", but this is not possible anymore when certificates have expirated. It is not possible to interact with vms to migrate them or properly shutdown them. The only way is to use virsh shutdown and finally fence the host.
+`oVirt` needs (at least) self generated certificates to make the engine and the hosts safely communicate. They are now valid 365 days by default. If a those certificates are not valid anymore, the hosts can't communicate anymore with the engine and the vms go into an unknown state. 
+The official way to renew certificates is to put the concerned host into maintenance and check `enroll certificates`, but this is not possible anymore when certificates have expirated. It is not possible to interact with vms to migrate them or properly shutdown them. The only way is to use virsh shutdown and finally fence the host.
 An intermediary solution is given by RedHat https://access.redhat.com/solutions/3532921, and this ansible role aims to automate it. 
 
 Requirements
@@ -12,7 +12,7 @@ Requirements
 * By default, host checking is disabled in ansible.cfg. You can change this behaviour with `export ANSIBLE_HOST_KEY_CHECKING=False` or with `host_key_checking = False` in `ansible.cfg`.
 * Engine (server) must login into host without password.
 
-        #engine ssh-copy-id root@host
+        [engine]# ssh-copy-id root@host
 
 * The role install python3 and pip dependencies to install the ovirt-engine-sdk-python, but it can be manually done with:
 
@@ -27,7 +27,7 @@ Requirements
 Role Variables
 --------------
 
-*  By default this role prompts some questions to register custom variables, but prompt can be bypass adding `-e` args.
+*  If using `test/role_ovirt_renew_certs.yml`, this role prompts some questions to register custom variables, but prompt can be bypass adding `-e` args.
 *  This role must be configured at least with `ovirt_password` and `domain` variable. 
 * `server` is not mandatory because the value is extracted from a query to multiple engines, but it can be forced.
 * `pem_validity` should be equal to `csr_validity` but strictly according to the Redhat solution, they must be distinct.
@@ -58,6 +58,24 @@ Example Playbook
     - hosts: all
       gather_facts: no
 
+      vars_prompt:
+        - name: ovirt_password
+          prompt: Enter oVirt admin password
+          unsafe: yes
+          #encrypt: sha256_crypt
+        - name: domain
+          prompt: Enter the oVirt domain
+          default: domain.com
+          private: no
+        - name: engines
+          prompt: Enter a list of oVirt engines
+          default: host1,host2
+          private: no
+        - name: pem_validity
+          prompt: Validity of the certificates in days
+          default: "365"
+          private: no
+
       tasks:
         - name: 
           include_role:
@@ -72,7 +90,7 @@ Example Playbook
             
 * You can change vars value on the CLI like this:
 
-            ansible-playbook role_ovirt_renew_certs.yml --limit ovirt_hosts (-i inventory)
+            ansible-playbook test/role_ovirt_renew_certs.yml --limit ovirt_hosts (-i inventory)
                                                           -e ovirt_password='my_password'
                                                           (-e server='my_engine')
                                                           -e engines="['host1', 'host2']"
@@ -82,7 +100,7 @@ Example Playbook
                                                           -e vdsmkey_path=/tmp
                                                           -e domain=my_domain.com
                                                   
-* ansible-playbook role_ovirt_renew_certs.yml --limit ovirt_hosts -e @vars.yml
+* ansible-playbook test/role_ovirt_renew_certs.yml --limit ovirt_hosts -e @vars.yml
                                                   
 * Or by modifying the `vars/main.yml` file
 
