@@ -7,7 +7,4 @@ vdsmkey: vdsmkey.pem
 vdsmcert: vdsmcert.pem
 vdsmkey_path: /tmp
 domain: domain.com
-engines:
-  - engine1
-  - engine2
-  - engine3
+engines: engine1,engine2,engine3
