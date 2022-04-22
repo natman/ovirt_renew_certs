@@ -1,14 +1,13 @@
 ---
-ovirt_password: ovirt&-1d6
+ovirt_password: my_password
 # server: arum
 csr_validity: 365
 pem_validity: 365
 vdsmkey: vdsmkey.pem
 vdsmcert: vdsmcert.pem
 vdsmkey_path: /tmp
-domain: v100.abes.fr
+domain: domain.com
 engines:
-  - air
-  - air-test
-  - air-dev
-  - arum
+  - engine1
+  - engine2
+  - engine3
