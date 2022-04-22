@@ -55,7 +55,7 @@ Example Playbook
       tasks:
         - name: 
           include_role:
-            name: ovirt_renew_certs
+            name: natman.ovirt_renew_certs
           vars: 
             vdsmkey: vdsmkey.pem
             vdsmkey_path: /tmp
