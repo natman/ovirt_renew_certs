@@ -3,7 +3,7 @@
 
   vars_prompt:
     - name: ovirt_password
-      prompt: Enter oVirt admin password.
+      prompt: Enter oVirt admin password
       unsafe: yes
       #encrypt: sha256_crypt
 
