@@ -1,4 +1,4 @@
-Role Name
+ovirt_renew_certs
 =========
 
 Ovirt needs (at least) self generated certificates to make the engine and the hosts safely communicate. They are now valid 365 days by default. If a those certificates are not valid anymore, the hosts can't communicate anymore with the engine and the vms go into an unknown state. 
