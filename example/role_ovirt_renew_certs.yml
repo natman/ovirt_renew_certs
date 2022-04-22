@@ -1,6 +1,25 @@
 - hosts: all
   gather_facts: no
 
+  vars_prompt:
+    - name: ovirt_password
+      prompt: Enter oVirt admin password.
+      unsafe: yes
+      encrypt: sha256_crypt
+
+    - name: domain
+      prompt: Enter the oVirt domain (domain.com)
+      private: no
+
+    - name: engines
+      prompt: Enter a list of oVirt engines ("['host1', 'host2']")
+      private: no
+
+    - name: pem_validity
+      prompt: Validity of the certificates in days
+      default: "365"
+      private: no
+
   tasks:
     - name: 
       include_role:
