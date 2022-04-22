@@ -27,22 +27,13 @@ galaxy_info:
   # To view available platforms and versions (or releases), visit:
   # https://galaxy.ansible.com/api/v1/platforms/
   #
-  platforms:
-  - name: Fedora
-    versions:
-    - all
-  - name: CentOS
-    versions:
-    - 7
-    - 8
-    - 9
     
   galaxy_tags:
-    ovirt
-    rhv
-    rhev
-    ansible
-    virtualization
+    - ovirt
+    - rhv
+    - rhev
+    - ansible
+    - virtualization
     certificates
     # List tags for your role here, one per line. A tag is a keyword that describes
     # and categorizes the role. Users find roles by searching for tags. Be sure to
