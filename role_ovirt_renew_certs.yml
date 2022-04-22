@@ -1,0 +1,12 @@
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: 
+      include_role:
+        name: natman.ovirt_renew_certs
+      vars: 
+        vdsmkey: vdsmkey.pem
+        vdsmkey_path: /tmp
+        csr_validity: 365
+        pem_validity: "{{survey_pem_validity|default('365')}}"
