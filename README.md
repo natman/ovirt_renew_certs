@@ -27,7 +27,8 @@ Requirements
 Role Variables
 --------------
 
-* This role must be configured at least with `ovirt_password` and `domain` variable. 
+*  By default this role prompts some questions to register custom variables, but prompt can be bypass adding `-e` args.
+*  This role must be configured at least with `ovirt_password` and `domain` variable. 
 * `server` is not mandatory because the value is extracted from a query to multiple engines, but it can be forced.
 * `pem_validity` should be equal to `csr_validity` but strictly according to the Redhat solution, they must be distinct.
 
@@ -38,8 +39,8 @@ Role Variables
 - vdsmkey: vdsmkey.pem
 - vdsmcert: vdsmcert.pem
 - vdsmkey_path: /tmp
-- domain: v100.domain.com
-- engines: [engine1, engine2, engine3]
+- domain: domain.com
+- engines: engine1,engine2,engine3
 
 
 Important Note
@@ -67,7 +68,9 @@ Example Playbook
             csr_validity: 365
             pem_validity: "{{survey_pem_validity|default('365')}}"
             
-You can change vars value on the CLI like this:
+* Vars are default prompted but if you prefer, you can instead act as following.
+            
+* You can change vars value on the CLI like this:
 
     ansible-playbook role_ovirt_renew_certs.yml --limit ovirt_hosts (-i inventory)
                                                   -e ovirt_password='my_password'
@@ -81,7 +84,7 @@ You can change vars value on the CLI like this:
                                                   
     ansible-playbook role_ovirt_renew_certs.yml --limit ovirt_hosts -e @vars.yml
                                                   
-Or by modifying the `vars/main.yml` file
+* Or by modifying the `vars/main.yml` file
 
 Good Practice
 -------------
