@@ -1,2 +1,3 @@
-localhost
-
+[ovirt_hosts]
+host1 ansible_hostame=vm706-dev.my_domain.com
+host2 ansible_hostame=vm706-dev.my_domain.com
