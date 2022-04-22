@@ -8,8 +8,12 @@ An intermediary solution is given by RedHat https://access.redhat.com/solutions/
 Requirements
 ------------
 
-Ansible must be installed on the controller, and all targeted hosts (engine and hosts) must be reachable with a simple "ansible -m ping".
-The role install python3 and pip dependencies to install the ovirt-engine-sdk-python, but it can be manually done with:
+* Ansible must be installed on the controller, and all targeted hosts (engine and hosts) must be reachable with a simple "ansible -m ping".
+* Engine (server) must login into host without password.
+
+        #engine ssh-copy-id root@host
+
+* The role install python3 and pip dependencies to install the ovirt-engine-sdk-python, but it can be manually done with:
 
     yum install -y python3-pip gcc openssl-devel libcurl-devel libxml2-devel python36-devel
     or
@@ -17,7 +21,7 @@ The role install python3 and pip dependencies to install the ovirt-engine-sdk-py
     python3 -m pip install -U pip
     python3 -m pip install ovirt-engine-sdk-python
     
-RedHat or similar is the prefered OS for the controller, but it should run as well on Ubuntu/Debian.
+* RedHat or similar is the prefered OS for the controller, but it should run as well on Ubuntu/Debian.
 
 Role Variables
 --------------
@@ -40,7 +44,7 @@ This role must be configured at least with "ovirt_password" and "domain" variabl
 Important Note
 --------------
 
-The hosts are not some variable but are some targeted host from the inventory. You should write a solid inventory file:
+The hosts are not some variables but are some targeted hosts from the inventory. You should write a solid inventory file:
 
     [ovirt_hosts]
     host1 ansible_hostame=vm706-dev.domain.com
