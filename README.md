@@ -9,10 +9,7 @@ Requirements
 ------------
 
 * Ansible must be installed on the controller, and all targeted hosts (engine and hosts) must be reachable with a simple "ansible -m ping".
-* By default, host checking is disabled in ansible.cfg. You can change this behaviour with `export ANSIBLE_HOST_KEY_CHECKING=False` or with `host_key_checking = False` in `ansible.cfg`.
-* Engine (server) must login into host without password.
-
-        [engine]# ssh-copy-id root@host
+* By default, host checking is enabled in ansible.cfg. You can change this behaviour with `export ANSIBLE_HOST_KEY_CHECKING=False` or with `host_key_checking = False` in `ansible.cfg`.
 
 * The role install python3 and pip dependencies to install the ovirt-engine-sdk-python, but it can be manually done with:
 
@@ -27,26 +24,23 @@ Requirements
 Role Variables
 --------------
 
-*  If using `test/role_ovirt_renew_certs.yml`, this role prompts some questions to register custom variables, but prompt can be bypass adding `-e` args.
-*  This role must be configured at least with `ovirt_password` and `domain` variable. 
+*  If using `test/role_ovirt_renew_certs.yml`, it prompts minimal questions to register custom variables, but prompt can be bypass adding `-e` args.
+*  This role must be configured at least with `ovirt_password` and `engine` variable. 
 * `server` is not mandatory because the value is extracted from a query to multiple engines, but it can be forced.
 * `pem_validity` should be equal to `csr_validity` but strictly according to the Redhat solution, they must be distinct.
 
 - ovirt_password: "admin@internal_password"
-- server: arum
+- engine: my_engine.domain.com
 - csr_validity: 365
 - pem_validity: 365
 - vdsmkey: vdsmkey.pem
 - vdsmcert: vdsmcert.pem
 - vdsmkey_path: /tmp
-- domain: domain.com
-- engines: engine1,engine2,engine3
-
 
 Important Note
 --------------
 
-The hosts are not some variables but are some targeted hosts from the inventory. You should write a solid inventory file:
+The hosts are not some variables but are some targeted hosts from the inventory. You should write a solid inventory file, you call them with the `--limit` flag on the CLI.
 
     [ovirt_hosts]
     host1 ansible_hostame=vm706-dev.my_domain.com
@@ -55,36 +49,37 @@ The hosts are not some variables but are some targeted hosts from the inventory.
 Example Playbook
 ----------------
 
-    - hosts: all
-      gather_facts: no
+        - hosts: all
+          gather_facts: no
 
-      vars_prompt:
-        - name: ovirt_password
-          prompt: Enter oVirt admin password
-          unsafe: yes
-          #encrypt: sha256_crypt
-        - name: domain
-          prompt: Enter the oVirt domain
-          default: domain.com
-          private: no
-        - name: engines
-          prompt: Enter a list of oVirt engines
-          default: host1,host2
-          private: no
-        - name: pem_validity
-          prompt: Validity of the certificates in days
-          default: "365"
-          private: no
+          vars_prompt:
 
-      tasks:
-        - name: 
-          include_role:
-            name: natman.ovirt_renew_certs
-          vars: 
-            vdsmkey: vdsmkey.pem
-            vdsmkey_path: /tmp
-            csr_validity: 365
-            pem_validity: "{{survey_pem_validity|default('365')}}"
+            - name: engine
+              prompt: Enter oVirt engine
+              default: my_engine.domain.com
+              private: no
+
+            - name: ovirt_password
+              prompt: Enter oVirt engine admin password
+              unsafe: yes
+              #encrypt: sha256_crypt
+
+            - name: pem_validity
+              prompt: Validity of the certificates in days
+              default: "365"
+              private: no
+
+          tasks:
+            - name: 
+              include_role:
+                name: ovirt_renew_certs
+              vars: 
+                vdsmkey: vdsmkey.pem
+                vdsmkey_path: /tmp
+                csr_validity: 365
+                pem_validity: "{{survey_pem_validity|default('365')}}"
+              tags: always
+
             
 * Vars are default prompted but if you prefer, you can instead act as following.
             
@@ -92,17 +87,25 @@ Example Playbook
 
             ansible-playbook test/role_ovirt_renew_certs.yml --limit ovirt_hosts (-i inventory)
                                                           -e ovirt_password='my_password'
-                                                          (-e server='my_engine')
-                                                          -e engines="['host1', 'host2']"
+                                                          -e engine=my_engine.domain.com
                                                           -e csr_validity=365
                                                           -e vdsmkey=vdsmkey.pem
                                                           -e vdsmcert=vdsmcert.pem
                                                           -e vdsmkey_path=/tmp
-                                                          -e domain=my_domain.com
                                                   
-* ansible-playbook test/role_ovirt_renew_certs.yml --limit ovirt_hosts -e @vars.yml
+* ansible-playbook test/role_ovirt_renew_certs.yml --limit ovirt_hosts -e @vars.yml with vars.yml as following:
+
+        ---
+        ovirt_password: "admin@internal_password"
+        engine: my_engine.domain.com
+        csr_validity: 365
+        pem_validity: 365
+        vdsmkey: vdsmkey.pem
+        vdsmcert: vdsmcert.pem
+        vdsmkey_path: /tmp
+
                                                   
-* Or by modifying the `vars/main.yml` file
+* Or by modifying the `defaults/main.yml` file
 
 Good Practice
 -------------
