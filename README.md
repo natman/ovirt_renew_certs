@@ -2,8 +2,16 @@ ovirt_renew_certs
 =========
 
 `oVirt` needs (at least) self generated certificates to make the engine and the hosts safely communicate. They are now valid 365 days by default. If a those certificates are not valid anymore, the hosts can't communicate anymore with the engine and the vms go into an unknown state. 
-The official way to renew certificates is to put the concerned host into maintenance and check `enroll certificates`, but this is not possible anymore when certificates have expirated. It is not possible to interact with vms to migrate them or properly shutdown them. The only way is to use virsh shutdown and finally fence the host.
+![image](https://user-images.githubusercontent.com/1138093/165585909-0a2ffa92-7e03-454b-8828-6ac96a7755e0.png)
+
+The official way to renew certificates is to put the concerned host into maintenance and check `enroll certificates`, but this is not possible anymore when certificates have expirated, neither it is possible to interact with vms to migrate them or properly shutdown them. In this cas ,the only way is to use virsh shutdown and finally fence the host.
 An intermediary solution is given by RedHat https://access.redhat.com/solutions/3532921, and this ansible role aims to automate it. 
+
+The role can also be used when certificates are about to expire or if you want to chose a longer cert validity than 365 days.
+![image](https://user-images.githubusercontent.com/1138093/165586219-a30d6415-c67d-4863-b527-6f813404e209.png)
+
+As recommended in the RedHat solution, this way to do should be used as a workaround. When hosts are finally able to communicate with the engine, you should consider to put your hosts in a maintain state so as to enroll certificates with UI. Omitting this can lead to some issues like vms migrations failure or non functionnal graphical console.
+
 
 Requirements
 ------------
