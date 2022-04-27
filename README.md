@@ -16,16 +16,20 @@ As recommended in the RedHat solution, this way to do should be used as a workar
 Requirements
 ------------
 
-* Ansible must be installed on the controller, and all targeted hosts (engine and hosts) must be reachable with a simple "ansible -m ping".
+* Ansible must be installed on the controller, and all targeted hosts (engine and hosts) must be reachable with a simple 
+
+        ansible -m ping -i inventory ovirt_hosts
+      
+  If not, you should use `ssh-keygen` and `ssh-copy-id` on your controller
 * By default, host checking is enabled in ansible.cfg. You can change this behaviour with `export ANSIBLE_HOST_KEY_CHECKING=False` or with `host_key_checking = False` in `ansible.cfg`.
 
 * The role install python3 and pip dependencies to install the ovirt-engine-sdk-python, but it can be manually done with:
 
-    yum install -y python3-pip gcc openssl-devel libcurl-devel libxml2-devel python36-devel
-    or
-    sudo apt install libxml2-dev lib32z1-dev libcurl4-openssl-dev build-dep python-lxml
-    python3 -m pip install -U pip
-    python3 -m pip install ovirt-engine-sdk-python
+        yum install -y python3-pip gcc openssl-devel libcurl-devel libxml2-devel python36-devel
+        or
+        sudo apt install libxml2-dev lib32z1-dev libcurl4-openssl-dev build-dep python-lxml
+        python3 -m pip install -U pip
+        python3 -m pip install ovirt-engine-sdk-python
     
 * RedHat or similar is the prefered OS for the controller, but it should run as well on Ubuntu/Debian.
 * __Before using this role into a playbook, you should copy this role to your roles path into `ansible.cfg`__
@@ -95,7 +99,7 @@ Example Playbook
             
 * Vars are default prompted but if you prefer, you can instead act as following.
             
-* You can change vars value on the CLI like this:
+    * You can change vars value on the CLI like this:
 
             ansible-playbook test/role_ovirt_renew_certs.yml --limit ovirt_hosts (-i inventory)
                                                           -e ovirt_password='my_password'
@@ -105,23 +109,23 @@ Example Playbook
                                                           -e vdsmcert=vdsmcert.pem
                                                           -e vdsmkey_path=/tmp
                                                   
-* Or with a yaml file as input:
+    * Or with a yaml file as input:
 
             ansible-playbook test/role_ovirt_renew_certs.yml --limit ovirt_hosts -e @vars.yml
 
-with vars.yml as following:
+        with `vars.yml` as following:
 
-        ---
-        ovirt_password: "admin@internal_password"
-        engine: my_engine.domain.com
-        csr_validity: 365
-        pem_validity: 365
-        vdsmkey: vdsmkey.pem
-        vdsmcert: vdsmcert.pem
-        vdsmkey_path: /tmp
+                ---
+                ovirt_password: "admin@internal_password"
+                engine: my_engine.domain.com
+                csr_validity: 365
+                pem_validity: 365
+                vdsmkey: vdsmkey.pem
+                vdsmcert: vdsmcert.pem
+                vdsmkey_path: /tmp
 
                                                   
-* Or by modifying the `defaults/main.yml` file
+    * Or by modifying the `defaults/main.yml` file
 
 Good Practice
 -------------
