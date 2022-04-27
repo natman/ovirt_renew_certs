@@ -97,7 +97,11 @@ Example Playbook
                                                           -e vdsmcert=vdsmcert.pem
                                                           -e vdsmkey_path=/tmp
                                                   
-* ansible-playbook test/role_ovirt_renew_certs.yml --limit ovirt_hosts -e @vars.yml with vars.yml as following:
+* Or with a yaml file as input:
+
+            ansible-playbook test/role_ovirt_renew_certs.yml --limit ovirt_hosts -e @vars.yml
+
+with vars.yml as following:
 
         ---
         ovirt_password: "admin@internal_password"
