@@ -2,20 +2,16 @@
   gather_facts: no
 
   vars_prompt:
+
+    - name: engine
+      prompt: Enter oVirt engine
+      default: engine.domain.com
+      private: no
+
     - name: ovirt_password
-      prompt: Enter oVirt admin password
+      prompt: Enter oVirt engine admin password
       unsafe: yes
       #encrypt: sha256_crypt
-
-    - name: domain
-      prompt: Enter the oVirt domain
-      default: domain.com
-      private: no
-
-    - name: engines
-      prompt: Enter a list of oVirt engines
-      default: host1,host2
-      private: no
 
     - name: pem_validity
       prompt: Validity of the certificates in days
@@ -25,9 +21,10 @@
   tasks:
     - name: 
       include_role:
-        name: natman.ovirt_renew_certs
+        name: ovirt_renew_certs
       vars: 
         vdsmkey: vdsmkey.pem
         vdsmkey_path: /tmp
         csr_validity: 365
         pem_validity: "{{survey_pem_validity|default('365')}}"
+      tags: always

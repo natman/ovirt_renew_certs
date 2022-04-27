@@ -9,5 +9,5 @@
       #ca_file: /tmp/ca.pem
       insecure: true
     ignore_errors: yes
-    no_log: True
+    # no_log: True
   tags: always

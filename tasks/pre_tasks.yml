@@ -24,21 +24,24 @@
       pip: 
         name: ovirt-engine-sdk-python
 
-    - name: Get hosts from all engines
-      ovirt_host_info:
-        auth:
-          url: "https://{{item}}.{{domain}}/ovirt-engine/api"
-          username: admin@internal
-          password: "{{ ovirt_password if item != 'infra' else ovirt_password_infra }}"
-          #ca_file: /tmp/ca.pem
-          insecure: true
-        pattern: "name={{inventory_hostname}}*"
-      loop: "{{engines.split(',')}}"
-      loop_control:
-        label: "{{item}}"
-      register: result
-    - set_fact:
-          server: "{{result.results|selectattr('ovirt_hosts')|map(attribute='item')|join(',')}}"
+## There is a possibility to determine which engine is the host from with a list of engines as input
+
+    # - name: Get hosts from all engines
+    #   ovirt_host_info:
+    #     auth:
+    #       url: "https://{{item}}.{{domain}}/ovirt-engine/api"
+    #       username: admin@internal
+    #       password: "{{ ovirt_password if item != 'infra' else ovirt_password_infra }}"
+    #       #ca_file: /tmp/ca.pem
+    #       insecure: true
+    #     pattern: "name={{inventory_hostname}}*"
+    #   loop: "{{engines.split(',')}}"
+    #   loop_control:
+    #     label: "{{item}}"
+    #   register: result
+    # - set_fact:
+    #       server: "{{result.results|selectattr('ovirt_hosts')|map(attribute='item')|join(',')}}"
   run_once: yes
   when: server is not defined
+  tags: always
   delegate_to: localhost

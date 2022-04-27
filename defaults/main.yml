@@ -6,5 +6,6 @@ pem_validity: 365
 vdsmkey: vdsmkey.pem
 vdsmcert: vdsmcert.pem
 vdsmkey_path: /tmp
-domain: domain.com
-engines: engine1,engine2,engine3
+server: "{{engine.split('.')[0]}}"
+domain: "{{engine.split('.')[1] + '.' + engine.split('.')[2] + '.' + engine.split('.')[3]}}"
+# engines: engine1,engine2,engine3

@@ -11,23 +11,47 @@
 
     - name: pre_tasks
       include_tasks: pre_tasks.yml
+      tags: always
 
-    - name: "Verify that {{server}} can connect to {{inventory_hostname}}"
-      shell: "timeout 5s ssh -o StrictHostKeyChecking=no root@{{inventory_hostname}}.{{domain}} exit"
-      register: result
-      ignore_errors: true
+    - block: 
+        - name: "Verify that {{server}} can connect to {{inventory_hostname}}"
+          shell: "timeout 5s ssh -o StrictHostKeyChecking=no root@{{inventory_hostname}}.{{domain}} -i ~/.ssh/ovirt_host_key exit"
+          register: result
+          ignore_errors: true
+        - debug: var=result
+
+        - name: Generate a rsa key pair
+          openssh_keypair:
+            path: ~/.ssh/ovirt_host_key
+            comment: renew_certs
+          run_once: yes
+          register: keyfile
+          when: result.failed and result.rc != 1
+        - name: Add ovirt_host_key to hosts 
+          authorized_key:
+            user: root
+            key: "{{keyfile.public_key}} {{keyfile.comment}}"
+          when: result.failed and result.rc != 1
+          delegate_to: "{{inventory_hostname}}"
+
+        - name: "Re-verify that {{server}} can connect to {{inventory_hostname}}"
+          shell: "timeout 5s ssh -o StrictHostKeyChecking=no root@{{inventory_hostname}}.{{domain}} -i ~/.ssh/ovirt_host_key exit"
+          register: result2
+          ignore_errors: true
+          when: result.failed and result.rc != 1
+        - fail:
+            msg: "Manually add an ssh key from {{server}} to {{inventory_hostname}} authorized_keys file"
+          when: 
+            - result2.failed is defined and result2.failed  and result2.rc != 1
       delegate_to: "{{server}}.{{domain}}"
       tags: ssh
-    
-    - fail:
-        msg: "Add an ssh key from {{server}} to {{inventory_hostname}} authorized_keys file"
-      when: result.failed
-
+ 
     - name: "Copy the key to the manager"
       synchronize:
         mode: pull
         src: "/etc/pki/vdsm/keys/{{vdsmkey}}"
         dest: "/tmp/{{vdsmkey}}_{{inventory_hostname}}"
+        private_key: /root/.ssh/ovirt_host_key
       delegate_to: "{{server}}.{{domain}}"
 
     - name: "Create a CSR for the host using the key"
@@ -72,6 +96,7 @@
       synchronize:
         src: "{{vdsmkey_path}}/test_{{inventory_hostname}}_vdsm.cer"
         dest: /etc/pki/vdsm/certs/{{vdsmcert}}
+        private_key: /root/.ssh/ovirt_host_key
       delegate_to: "{{server}}.{{domain}}"
       tags: synchronize
 
