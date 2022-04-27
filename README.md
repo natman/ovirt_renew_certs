@@ -36,6 +36,8 @@ Requirements
 * __The easiest way to use this role is to download it from `Ansible Galaxy` (https://galaxy.ansible.com/natman/ovirt_renew_certs) like this:__
 
          $ ansible-galaxy install natman.ovirt_renew_certs
+         $ cd $HOME/.ansible/roles/natman.ovirt_renew_certs/tests/
+         $ ansible-playbook -i inventory role_ovirt_renew_certs.yml (--limit host1,host2)
 
 Role Variables
 --------------
