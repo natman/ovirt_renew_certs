@@ -20,6 +20,10 @@ Requirements
     python3 -m pip install ovirt-engine-sdk-python
     
 * RedHat or similar is the prefered OS for the controller, but it should run as well on Ubuntu/Debian.
+* __Before using this role into a playbook, you should copy this role to your roles path into `ansible.cfg`__
+* __The easiest way to use this role is to download it from `Ansible Galaxy` (https://galaxy.ansible.com/natman/ovirt_renew_certs) like this:__
+
+         $ ansible-galaxy install natman.ovirt_renew_certs
 
 Role Variables
 --------------
