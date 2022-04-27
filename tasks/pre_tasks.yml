@@ -42,6 +42,5 @@
     # - set_fact:
     #       server: "{{result.results|selectattr('ovirt_hosts')|map(attribute='item')|join(',')}}"
   run_once: yes
-  when: server is not defined
   tags: always
   delegate_to: localhost
