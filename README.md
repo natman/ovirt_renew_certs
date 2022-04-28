@@ -1,10 +1,10 @@
 ovirt_renew_certs
 =========
 
-`oVirt` needs (at least) self generated certificates to make the engine and the hosts safely communicate. They are now valid 365 days by default. If a those certificates are not valid anymore, the hosts can't communicate anymore with the engine and the vms go into an unknown state. 
+`oVirt` needs (at least) self generated certificates to make the engine and the hosts safely communicate. They are now by default valid for 365 days. If those certificates expirate, the hosts can't communicate anymore with the engine and the vms go into an unknown state. 
 ![image](https://user-images.githubusercontent.com/1138093/165585909-0a2ffa92-7e03-454b-8828-6ac96a7755e0.png)
 
-The official way to renew certificates is to put the concerned host into maintenance and check `enroll certificates`, but this is not possible anymore when certificates have expirated, neither it is possible to interact with vms to migrate them or properly shutdown them. In this cas ,the only way is to use virsh shutdown and finally fence the host.
+The official way to renew certificates is to put the concerned host into maintenance and check `enroll certificates`, but this is not possible anymore when certificates have expirated, neither it is possible to interact with vms to migrate them or properly shutdown them. In this cas ,the only way is to use `virsh shutdown` and finally fence the host.
 An intermediary solution is given by RedHat https://access.redhat.com/solutions/3532921, and this ansible role aims to automate it. 
 
 The role can also be used when certificates are about to expire or if you want to chose a longer cert validity than 365 days.
@@ -16,14 +16,21 @@ As recommended in the RedHat solution, this way to do should be used as a workar
 Requirements
 ------------
 
-* Ansible must be installed on the controller, and all targeted hosts (engine and hosts) must be reachable with a simple 
+* Ansible package must be installed on the controller.
+* The hosts are not some variables but are some targeted hosts from the inventory. You should write a solid inventory file, you call them with the `--limit` flag on the CLI.
+
+    [ovirt_hosts]
+    host1 ansible_hostame=vm706-dev.my_domain.com
+    host2 ansible_hostame=vm706-dev.my_domain.com
+
+* All targeted hosts (engine and hosts) must be reachable with a simple 
 
         ansible -m ping -i inventory ovirt_hosts
       
   If not, you should use `ssh-keygen` and `ssh-copy-id` on your controller
 * By default, host checking is enabled in ansible.cfg. You can change this behaviour with `export ANSIBLE_HOST_KEY_CHECKING=False` or with `host_key_checking = False` in `ansible.cfg`.
 
-* The role install python3 and pip dependencies to install the ovirt-engine-sdk-python, but it can be manually done with:
+* <ins>The role installs by its own python3 and pip dependencies and ovirt-engine-sdk-python on the controller</ins>, but you can be manually do the same with:
 
         yum install -y python3-pip gcc openssl-devel libcurl-devel libxml2-devel python36-devel
         or
@@ -32,12 +39,13 @@ Requirements
         python3 -m pip install ovirt-engine-sdk-python
     
 * RedHat or similar is the prefered OS for the controller, but it should run as well on Ubuntu/Debian.
-* __Before using this role into a playbook, you should copy this role to your roles path into `ansible.cfg`__
-* __The easiest way to use this role is to download it from `Ansible Galaxy` (https://galaxy.ansible.com/natman/ovirt_renew_certs) like this:__
+* Two ways of running this role:
+        * __Copying this role to your roles path defined into `ansible.cfg`, default is `$HOME/.ansible/roles/`__
+        * __From `Ansible Galaxy` (https://galaxy.ansible.com/natman/ovirt_renew_certs) doing so:__
 
-         $ ansible-galaxy install natman.ovirt_renew_certs
-         $ cd $HOME/.ansible/roles/natman.ovirt_renew_certs/tests/
-         $ ansible-playbook -i inventory role_ovirt_renew_certs.yml (--limit host1,host2)
+                 $ ansible-galaxy install natman.ovirt_renew_certs
+                 $ cd $HOME/.ansible/roles/natman.ovirt_renew_certs/tests/
+                 $ ansible-playbook -i inventory role_ovirt_renew_certs.yml (--limit host1,host2)
 
 Role Variables
 --------------
@@ -58,11 +66,6 @@ Role Variables
 Important Note
 --------------
 
-The hosts are not some variables but are some targeted hosts from the inventory. You should write a solid inventory file, you call them with the `--limit` flag on the CLI.
-
-    [ovirt_hosts]
-    host1 ansible_hostame=vm706-dev.my_domain.com
-    host2 ansible_hostame=vm706-dev.my_domain.com
 
 Example Playbook
 ----------------
